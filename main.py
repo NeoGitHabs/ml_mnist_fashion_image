@@ -57,7 +57,10 @@ async def check_image(file: UploadFile = File()):
         with torch.no_grad():
             y_prediction = model(image_tensor)
             prediction = y_prediction.argmax(dim=1).item()
-        return {'Answer': class_names[prediction]}
+        return {
+            'Класстын саны': prediction,
+            'Класстын аталышы': class_names[prediction]
+        }
 
     except Exception as e:
         raise HTTPException(500, detail=str(e))
