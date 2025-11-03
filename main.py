@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from PIL import Image
 from fastapi import FastAPI, UploadFile, File
 from torchvision import transforms
+import streamlit as st
 import torch.nn as nn
 import uvicorn
 import torch
@@ -44,27 +45,50 @@ model.eval()
 
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
-@app.post('/predict')
-async def check_image(file: UploadFile = File()):
-    try:
-        image_bytes = await file.read()
-        if not image_bytes:
-            raise HTTPException(400, detail='Файл кошулган жок')
+# @app.post('/predict')
+# async def check_image(file: UploadFile = File()):
+#     try:
+#         image_bytes = await file.read()
+#         if not image_bytes:
+#             raise HTTPException(400, detail='Файл кошулган жок')
+#
+#         image = Image.open(io.BytesIO(image_bytes))
+#         image_tensor = transform(image).unsqueeze(0).to(device)
+#
+#         with torch.no_grad():
+#             y_prediction = model(image_tensor)
+#             prediction = y_prediction.argmax(dim=1).item()
+#         return {
+#             'Класстын саны': prediction,
+#             'Класстын аталышы': class_names[prediction]
+#         }
+#
+#     except Exception as e:
+#         raise HTTPException(500, detail=str(e))
 
-        image = Image.open(io.BytesIO(image_bytes))
-        image_tensor = transform(image).unsqueeze(0).to(device)
 
-        with torch.no_grad():
-            y_prediction = model(image_tensor)
-            prediction = y_prediction.argmax(dim=1).item()
-        return {
-            'Класстын саны': prediction,
-            'Класстын аталышы': class_names[prediction]
-        }
+# if __name__ == '__main__':
+#     uvicorn.run(app, host='127.0.0.1', port=8000)
 
-    except Exception as e:
-        raise HTTPException(500, detail=str(e))
+st.title('Mnist Classifier Model')
+st.text('Загрузите изображение с цифрой, и модель попробует её распознать.')
 
+mnist_image = st.file_uploader('Выберите изображение', type=['PNG', 'JPG', 'JPEG', 'SVG'])
 
-if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+if not mnist_image:
+    st.info('Загрузите изображение')
+else:
+    st.image(mnist_image, caption='Загруженное изображение')
+
+    if st.button('Распознать цифру'):
+        try:
+            image = Image.open(mnist_image)
+            image_tensor = transform(image).unsqueeze(0).to(device)
+
+            with torch.no_grad():
+                y_prediction = model(image_tensor)
+                prediction = y_prediction.argmax(dim=1).item()
+            st.success(f'Модель думает, что это: {class_names[prediction]}')
+
+        except Exception as e:
+            st.error(f'Ошибка: {str(e)}')
