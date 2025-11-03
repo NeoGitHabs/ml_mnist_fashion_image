@@ -70,8 +70,8 @@ class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 
 # if __name__ == '__main__':
 #     uvicorn.run(app, host='127.0.0.1', port=8000)
 
-st.title('Mnist Classifier Model')
-st.text('Загрузите изображение с цифрой, и модель попробует её распознать.')
+st.title('Mnist Fashion Model')
+st.text('Загрузите изображение одежды, и модель попробует её распознать.')
 
 mnist_image = st.file_uploader('Выберите изображение', type=['PNG', 'JPG', 'JPEG', 'SVG'])
 
@@ -80,7 +80,7 @@ if not mnist_image:
 else:
     st.image(mnist_image, caption='Загруженное изображение')
 
-    if st.button('Распознать цифру'):
+    if st.button('Распознать одежду'):
         try:
             image = Image.open(mnist_image)
             image_tensor = transform(image).unsqueeze(0).to(device)
